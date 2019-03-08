@@ -1,7 +1,6 @@
 package com.climesoft.client.csvfileread;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -11,10 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
@@ -65,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
         }*/
     }
 
-    public void openAndGetFilePath()
-    {
+    public void openAndGetFilePath() {
 
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
         // browser.
@@ -83,33 +79,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
 
-        if(requestCode == SELECT_CSV_FILE)
-        {
-            if(resultCode == RESULT_OK) {
+        if (requestCode == SELECT_CSV_FILE) {
+            if (resultCode == RESULT_OK) {
                 String filePath = resultData.getData().getPath();
 
                 try {
-
-                    FileInputStream inputStream = new FileInputStream(filePath);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
-
-                    String line = "";
                     StringBuffer data = new StringBuffer();
-                    //reader.readLine();
-                    while ((line = reader.readLine()) != null) {
-                        String[] tokens = line.split(",");
-                        if (tokens[0].length() > 0) {
-                            data.append("ID : " + tokens[0]);
-                        } else {
-                            data.append("ID : " + null);
-                        }
-                        if (tokens[1].length() > 0) {
-                            data.append(" -- Name : " + tokens[1]);
-                        } else {
-                            data.append(" -- Name : " + null);
-                        }
 
-                        data.append("\n");
+                    if (filePath.contains(".csv")) {
+                        FileInputStream inputStream = new FileInputStream(filePath);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+
+                        String line = "";
+
+                        //reader.readLine();
+                        while ((line = reader.readLine()) != null) {
+                            Log.d("MyTag", line);
+                            //data.append(line);
+                            String[] tokens = line.split(",");
+                            if (tokens.length >= 1 && tokens[0].length() > 0) {
+                                data.append("ID : " + tokens[0]);
+                            } else {
+                                data.append("ID : " + null);
+                            }
+                            if (tokens.length >= 2 && tokens[1].length() > 0) {
+                                data.append(" -- Name : " + tokens[1]);
+                            } else {
+                                data.append(" -- Name : " + null);
+                            }
+
+                            data.append("\n");
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, "Invalid File.Please Select .CSV Extension File!", Toast.LENGTH_LONG).show();
                     }
 
                     tvData.setText(data);
@@ -117,9 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     tvData.setText(e.toString());
                     Log.d("MyTag", e.toString());
                 }
-
-                Toast.makeText(MainActivity.this, filePath , Toast.LENGTH_LONG).show();
-
+                //Toast.makeText(MainActivity.this, filePath, Toast.LENGTH_LONG).show();
             }
         }
     }
